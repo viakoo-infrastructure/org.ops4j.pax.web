@@ -91,12 +91,14 @@ class JettyServerHandlerCollection extends HandlerCollection {
 
 		}
 		// now handle all other handlers
-		for (Handler handler : getHandlers()) {
-			if (matched != null
-					&& matchedContextEqualsHandler(matched, handler)) {
-				continue;
+		if (!request.isAsyncStarted()) {
+			for (Handler handler : getHandlers()) {
+				if (matched != null
+						&& matchedContextEqualsHandler(matched, handler)) {
+					continue;
+				}
+				handler.handle(target, baseRequest, request, response);
 			}
-			handler.handle(target, baseRequest, request, response);
 		}
 	}
 
