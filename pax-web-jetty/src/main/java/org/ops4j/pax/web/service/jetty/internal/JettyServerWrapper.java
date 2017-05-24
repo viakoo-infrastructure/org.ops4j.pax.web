@@ -44,12 +44,10 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HandlerContainer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.SessionIdManager;
-import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.session.AbstractSessionIdManager;
-import org.eclipse.jetty.server.session.AbstractSessionManager;
-import org.eclipse.jetty.server.session.HashSessionIdManager;
-import org.eclipse.jetty.server.session.HashSessionManager;
+import org.eclipse.jetty.server.session.DefaultSessionCache;
+import org.eclipse.jetty.server.session.DefaultSessionIdManager;
+import org.eclipse.jetty.server.session.FileSessionDataStore;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler.JspConfig;
@@ -543,73 +541,62 @@ class JettyServerWrapper extends Server {
 
 		final SessionHandler sessionHandler = context.getSessionHandler();
 		if (sessionHandler != null) {
-			final SessionManager sessionManager = sessionHandler.getSessionManager();
-			if (sessionManager != null) {
-				if (minutes != null) {
-					sessionManager.setMaxInactiveInterval(minutes * 60);
-					LOG.debug("Session timeout set to " + minutes + " minutes for context [" + context + "]");
-				}
-				if (cookie == null || "none".equals(cookie)) {
-					if (sessionManager instanceof AbstractSessionManager) {
-						((AbstractSessionManager) sessionManager).setUsingCookies(false);
-						LOG.debug("Session cookies disabled for context [" + context + "]");
-					} else {
-						LOG.debug(
-								"SessionManager isn't of type AbstractSessionManager therefore using cookies unchanged!");
-					}
-				} else {
-					sessionManager.getSessionCookieConfig().setName(cookie);
-					LOG.debug("Session cookie set to " + cookie + " for context [" + context + "]");
+			if (minutes != null) {
+				sessionHandler.setMaxInactiveInterval(minutes * 60);
+				LOG.debug("Session timeout set to " + minutes + " minutes for context [" + context + "]");
+			}
+			if (cookie == null || "none".equals(cookie)) {
+				sessionHandler.setUsingCookies(false);
+				LOG.debug("Session cookies disabled for context [" + context + "]");
+			} else {
+				sessionHandler.getSessionCookieConfig().setName(cookie);
+				LOG.debug("Session cookie set to " + cookie + " for context [" + context + "]");
 
-					sessionManager.getSessionCookieConfig().setHttpOnly(cookieHttpOnly);
-					LOG.debug("Session cookieHttpOnly set to " + cookieHttpOnly + " for context [" + context + "]");
+				sessionHandler.getSessionCookieConfig().setHttpOnly(cookieHttpOnly);
+				LOG.debug("Session cookieHttpOnly set to " + cookieHttpOnly + " for context [" + context + "]");
+			}
+			if (domain != null && domain.length() > 0) {
+				sessionHandler.getSessionCookieConfig().setDomain(domain);
+				LOG.debug("Session cookie domain set to " + domain + " for context [" + context + "]");
+			}
+			if (path != null && path.length() > 0) {
+				sessionHandler.getSessionCookieConfig().setPath(path);
+				LOG.debug("Session cookie path set to " + path + " for context [" + context + "]");
+			}
+			if (secure != null) {
+				sessionHandler.getSessionCookieConfig().setSecure(secure);
+				LOG.debug("Session cookie secure set to " + secure + " for context [" + context + "]");
+			}
+			if (url != null) {
+				sessionHandler.setSessionIdPathParameterName(url);
+				LOG.debug("Session URL set to " + url + " for context [" + context + "]");
+			}
+			if (workerName != null) {
+				SessionIdManager sessionIdManager = sessionHandler.getSessionIdManager();
+				if (sessionIdManager == null) {
+					// FIXME check if this makes sense at all with Jetty 9.4.x
+					sessionIdManager = new DefaultSessionIdManager(sessionHandler.getServer());
+					sessionHandler.setSessionIdManager(sessionIdManager);
 				}
-				if (domain != null && domain.length() > 0) {
-					sessionManager.getSessionCookieConfig().setDomain(domain);
-					LOG.debug("Session cookie domain set to " + domain + " for context [" + context + "]");
+				if (sessionIdManager instanceof DefaultSessionIdManager) {
+					((DefaultSessionIdManager) sessionIdManager).setWorkerName(workerName);
+					LOG.debug("Worker name set to " + workerName + " for context [" + context + "]");
 				}
-				if (path != null && path.length() > 0) {
-					sessionManager.getSessionCookieConfig().setPath(path);
-					LOG.debug("Session cookie path set to " + path + " for context [" + context + "]");
+			}
+			// PAXWEB-461
+			if (lazy != null) {
+				LOG.debug("is LazyLoad active? {}", lazy);
+				if (sessionHandler.getSessionIdManager() instanceof DefaultSessionIdManager) {
+					((DefaultSessionIdManager) sessionHandler.getSessionCache()).setLazyLoad(lazy);
 				}
-				if (secure != null) {
-					sessionManager.getSessionCookieConfig().setSecure(secure);
-					LOG.debug("Session cookie secure set to " + secure + " for context [" + context + "]");
-				}
-				if (url != null) {
-					sessionManager.setSessionIdPathParameterName(url);
-					LOG.debug("Session URL set to " + url + " for context [" + context + "]");
-				}
-				if (workerName != null) {
-					SessionIdManager sessionIdManager = sessionManager.getSessionIdManager();
-					if (sessionIdManager == null) {
-						sessionIdManager = new HashSessionIdManager();
-						sessionManager.setSessionIdManager(sessionIdManager);
-					}
-					if (sessionIdManager instanceof AbstractSessionIdManager) {
-						AbstractSessionIdManager s = (AbstractSessionIdManager) sessionIdManager;
-						s.setWorkerName(workerName);
-						LOG.debug("Worker name set to " + workerName + " for context [" + context + "]");
-					}
-				}
-				// PAXWEB-461
-				if (lazy != null) {
-					LOG.debug("is LazyLoad active? {}", lazy);
-					if (sessionManager instanceof HashSessionManager) {
-						((HashSessionManager) sessionManager).setLazyLoad(lazy);
-					}
-				}
-				if (directory != null) {
-					LOG.debug("storeDirectoy set to: {}", directory);
-					if (sessionManager instanceof HashSessionManager) {
-						File storeDir = null;
-						try {
-							storeDir = new File(directory);
-							((HashSessionManager) sessionManager).setStoreDirectory(storeDir);
-						} catch (IOException e) {
-							LOG.warn("IOException while trying to set the StoreDirectory on the session Manager", e);
-						}
-					}
+			}
+			if (directory != null) {
+				LOG.debug("storeDirectoy set to: {}", directory);
+				if (sessionHandler.getSessionCache() instanceof DefaultSessionCache
+						&& sessionHandler.getSessionCache().getSessionDataStore() instanceof FileSessionDataStore) {
+						((FileSessionDataStore) sessionHandler.getSessionCache().getSessionDataStore()).setStoreDir(new File(directory));
+				} else {
+					LOG.warn("cannot set storeDirectory for type '{}", sessionHandler.getSessionCache().getSessionDataStore());
 				}
 			}
 		}
