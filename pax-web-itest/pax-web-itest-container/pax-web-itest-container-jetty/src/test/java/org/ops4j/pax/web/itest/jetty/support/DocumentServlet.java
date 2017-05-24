@@ -18,6 +18,7 @@ package org.ops4j.pax.web.itest.jetty.support;
 import aQute.bnd.annotation.component.Activate;
 import aQute.bnd.annotation.component.Component;
 import org.eclipse.jetty.http.*;
+import org.eclipse.jetty.http.pathmap.MappedResource;
 import org.eclipse.jetty.io.WriterOutputStream;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -67,7 +68,7 @@ public class DocumentServlet extends HttpServlet implements ResourceFactory {
 	private boolean etags = false;
 
 	private Resource resourceBase;
-	private ResourceCache cache;
+	private CachedContentFactory cache;
 
 	private MimeTypes mimeTypes;
 	private String[] welcomes;
@@ -169,7 +170,7 @@ public class DocumentServlet extends HttpServlet implements ResourceFactory {
 				throw new UnavailableException(
 						"resourceCache specified with resource bases");
 			}
-			cache = (ResourceCache) servletContext.getAttribute(resourceCache);
+			cache = (CachedContentFactory) servletContext.getAttribute(resourceCache);
 
 			logger.debug("Cache {}={}", resourceCache, cache);
 		}
@@ -178,8 +179,13 @@ public class DocumentServlet extends HttpServlet implements ResourceFactory {
 
 		try {
 			if (cache == null && maxCachedFiles > 0) {
-				cache = new ResourceCache(null, this, mimeTypes,
-						useFileMappedBuffer, true, gzip);
+				cache = new CachedContentFactory(
+						null,
+						this,
+						mimeTypes,
+						useFileMappedBuffer,
+						true,
+						gzip ? new CompressedContentFormat[] {CompressedContentFormat.GZIP} : CompressedContentFormat.NONE);
 
 				if (maxCacheSize > 0) {
 					cache.setMaxCacheSize(maxCacheSize);
@@ -580,7 +586,7 @@ public class DocumentServlet extends HttpServlet implements ResourceFactory {
 	 * read from the {@link ContextHandler} for this servlet, or
 	 * <code>"index.jsp" , "index.html"</code> if that is <code>null</code>.
 	 *
-	 * @param resource
+	 * @param pathInContext
 	 * @return The path of the matching welcome file in context or null.
 	 * @throws IOException
 	 * @throws MalformedURLException
@@ -601,12 +607,15 @@ public class DocumentServlet extends HttpServlet implements ResourceFactory {
 
 			if ((welcomeServlets || welcomeExactServlets)
 					&& welcomeServlet == null) {
-				Map.Entry<?, ?> entry = servletHandler
-						.getHolderEntry(welcomeInContext);
-				if (entry != null
-						&& entry.getValue() != defaultHolder
-						&& (welcomeServlets || (welcomeExactServlets && entry
-						.getKey().equals(welcomeInContext)))) {
+				MappedResource<ServletHolder> mappedResource = servletHandler
+						.getMappedServlet(welcomeInContext);
+				if (mappedResource != null
+						&& mappedResource.getResource() != defaultHolder
+						&& (
+								welcomeServlets
+										|| (welcomeExactServlets && mappedResource.getPathSpec().getDeclaration().equals(welcomeInContext)))
+						)
+				{
 					welcomeServlet = welcomeInContext;
 				}
 
