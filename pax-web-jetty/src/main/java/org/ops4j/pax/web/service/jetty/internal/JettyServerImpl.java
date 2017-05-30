@@ -299,10 +299,10 @@ class JettyServerImpl implements JettyServer {
 								 final String sessionDomain, final String sessionPath,
 								 final String sessionUrl, final Boolean sessionCookieHttpOnly,
 								 final Boolean sessionCookieSecure, final String workerName,
-								 final Boolean lazyLoad, final String storeDirectory) {
+								 final String storeDirectory) {
 		server.configureContext(attributes, sessionTimeout, sessionCookie,
 				sessionDomain, sessionPath, sessionUrl, sessionCookieHttpOnly,
-				sessionCookieSecure, workerName, lazyLoad, storeDirectory);
+				sessionCookieSecure, workerName, storeDirectory);
 	}
 
 	@Override
