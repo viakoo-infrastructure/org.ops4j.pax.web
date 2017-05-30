@@ -17,11 +17,8 @@
 package org.ops4j.pax.web.service.jetty.internal;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +62,6 @@ import org.ops4j.pax.web.service.spi.model.ServerModel;
 import org.ops4j.pax.web.utils.ServletContainerInitializerScanner;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -116,7 +112,6 @@ class JettyServerWrapper extends Server {
 	private String sessionPath;
 	private String sessionUrl;
 	private String sessionWorkerName;
-	private Boolean lazyLoad;
 	private String storeDirectory;
 
 	private File serverConfigDir;
@@ -157,7 +152,7 @@ class JettyServerWrapper extends Server {
 
 	public void configureContext(final Map<String, Object> attributes, final Integer timeout, final String cookie,
 								 final String domain, final String path, final String url, final Boolean cookieHttpOnly,
-								 final Boolean sessionCookieSecure, final String workerName, final Boolean lazy, final String directory) {
+								 final Boolean sessionCookieSecure, final String workerName, final String directory) {
 		this.contextAttributes = attributes;
 		this.sessionTimeout = timeout;
 		this.sessionCookie = cookie;
@@ -167,7 +162,6 @@ class JettyServerWrapper extends Server {
 		this.sessionCookieHttpOnly = cookieHttpOnly;
 		this.sessionCookieSecure = sessionCookieSecure;
 		this.sessionWorkerName = workerName;
-		lazyLoad = lazy;
 		this.storeDirectory = directory;
 	}
 
@@ -320,7 +314,7 @@ class JettyServerWrapper extends Server {
 			workerName = sessionWorkerName;
 		}
 		configureSessionManager(context, modelSessionTimeout, modelSessionCookie, modelSessionDomain, modelSessionPath,
-				modelSessionUrl, modelSessionCookieHttpOnly, modelSessionSecure, workerName, lazyLoad, storeDirectory);
+				modelSessionUrl, modelSessionCookieHttpOnly, modelSessionSecure, workerName, storeDirectory);
 
 		if (model.getRealmName() != null && model.getAuthMethod() != null) {
 			configureSecurity(context, model.getRealmName(), model.getAuthMethod(), model.getFormLoginPage(),
@@ -513,31 +507,29 @@ class JettyServerWrapper extends Server {
 	/**
 	 * Configures the session time out by extracting the session
 	 * handlers->sessionManager for the context.
-	 *
-	 * @param context        the context for which the session timeout should be configured
+	 *  @param context        the context for which the session timeout should be configured
 	 * @param minutes        timeout in minutes
 	 * @param cookie         Session cookie name. Defaults to JSESSIONID. If set to null or
-	 *                       "none" no cookies will be used.
+ *                       "none" no cookies will be used.
 	 * @param domain         Session cookie domain name. Default to the current host.
 	 * @param path           Session cookie path. default to the current servlet context
-	 *                       path.
+*                       path.
 	 * @param url            session URL parameter name. Defaults to jsessionid. If set to
-	 *                       null or "none" no URL rewriting will be done.
+*                       null or "none" no URL rewriting will be done.
 	 * @param cookieHttpOnly configures if the Cookie is valid for http only and therefore
-	 *                       not available to javascript.
+*                       not available to javascript.
 	 * @param secure         Configures if the session cookie is only transfered via https
-	 *                       even if its created during a non-secure request. Defaults to
-	 *                       false which means the session cookie is set to be secure if
-	 *                       its created during a https request.
+*                       even if its created during a non-secure request. Defaults to
+*                       false which means the session cookie is set to be secure if
+*                       its created during a https request.
 	 * @param workerName     name appended to session id, used to assist session affinity
-	 *                       in a load balancer
 	 */
 	private void configureSessionManager(final ServletContextHandler context, final Integer minutes,
 										 final String cookie, String domain, String path, final String url, final Boolean cookieHttpOnly,
-										 final Boolean secure, final String workerName, final Boolean lazy, final String directory) {
+										 final Boolean secure, final String workerName, final String directory) {
 		LOG.debug("configureSessionManager for context [" + context + "] using - timeout:" + minutes + ", cookie:"
 				+ cookie + ", url:" + url + ", cookieHttpOnly:" + cookieHttpOnly + ", workerName:" + workerName
-				+ ", lazyLoad:" + lazy + ", storeDirectory: " + directory);
+				+ ", storeDirectory: " + directory);
 
 		final SessionHandler sessionHandler = context.getSessionHandler();
 		if (sessionHandler != null) {
@@ -581,13 +573,6 @@ class JettyServerWrapper extends Server {
 				if (sessionIdManager instanceof DefaultSessionIdManager) {
 					((DefaultSessionIdManager) sessionIdManager).setWorkerName(workerName);
 					LOG.debug("Worker name set to " + workerName + " for context [" + context + "]");
-				}
-			}
-			// PAXWEB-461
-			if (lazy != null) {
-				LOG.debug("is LazyLoad active? {}", lazy);
-				if (sessionHandler.getSessionIdManager() instanceof DefaultSessionIdManager) {
-					((DefaultSessionIdManager) sessionHandler.getSessionCache()).setLazyLoad(lazy);
 				}
 			}
 			if (directory != null) {

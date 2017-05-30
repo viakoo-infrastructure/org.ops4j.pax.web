@@ -128,7 +128,6 @@ public interface Configuration {
 
 	String getSessionStoreDirectory();
 
-	Boolean getSessionLazyLoad();
 
 	String getWorkerName();
 

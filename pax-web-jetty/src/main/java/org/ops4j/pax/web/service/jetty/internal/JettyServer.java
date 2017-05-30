@@ -29,7 +29,6 @@ import org.ops4j.pax.web.service.spi.model.EventListenerModel;
 import org.ops4j.pax.web.service.spi.model.FilterModel;
 import org.ops4j.pax.web.service.spi.model.SecurityConstraintMappingModel;
 import org.ops4j.pax.web.service.spi.model.ServletModel;
-import org.ops4j.pax.web.service.spi.model.WebSocketModel;
 import org.ops4j.pax.web.service.spi.model.WelcomeFileModel;
 import org.osgi.service.http.HttpContext;
 
@@ -54,28 +53,26 @@ public interface JettyServer {
 
 	/**
 	 * Adds a context to jetty server.
-	 *
-	 * @param attributes            map of context attributes
+	 *  @param attributes            map of context attributes
 	 * @param sessionTimeout        session timeout in minutes
-	 * @param sessionCookie         session cookie name. Defaults to JSESSIONID.
-	 * @param sessionDomain         session cookie domain. Defaults to the current host.
-	 * @param sessionPath           session cookie path. Defaults to the current servlet context path.
-	 * @param sessionUrl            session URL parameter name. Defaults to jsessionid. If set to
-	 *                              null or "none" no URL rewriting will be done.
-	 * @param sessionCookieHttpOnly if set, the session cookie is not available to client side
-	 *                              scripting.
-	 * @param sessionCookieSecure   if set, the session cookie is only transfered over secure
-	 *                              transports (https).
-	 * @param sessionWorkerName     name appended to session id, used to assist session affinity
-	 *                              in a load balancer
-	 * @param lazyLoad              flag if a HashSessionManager should use lazyLoading
-	 * @param storeDirectory        the directory to store the hashSessions
-	 */
+     * @param sessionCookie         session cookie name. Defaults to JSESSIONID.
+     * @param sessionDomain         session cookie domain. Defaults to the current host.
+     * @param sessionPath           session cookie path. Defaults to the current servlet context path.
+     * @param sessionUrl            session URL parameter name. Defaults to jsessionid. If set to
+*                              null or "none" no URL rewriting will be done.
+     * @param sessionCookieHttpOnly if set, the session cookie is not available to client side
+*                              scripting.
+     * @param sessionCookieSecure   if set, the session cookie is only transfered over secure
+*                              transports (https).
+     * @param sessionWorkerName     name appended to session id, used to assist session affinity
+*                              in a load balancer
+     * @param storeDirectory        the directory to store the hashSessions
+     */
 	void configureContext(Map<String, Object> attributes,
-						  Integer sessionTimeout, String sessionCookie, String sessionDomain,
-						  String sessionPath, String sessionUrl, Boolean sessionCookieHttpOnly,
-						  Boolean sessionCookieSecure, String sessionWorkerName,
-						  Boolean lazyLoad, String storeDirectory);
+                          Integer sessionTimeout, String sessionCookie, String sessionDomain,
+                          String sessionPath, String sessionUrl, Boolean sessionCookieHttpOnly,
+                          Boolean sessionCookieSecure, String sessionWorkerName,
+                          String storeDirectory);
 
 	void removeContext(HttpContext httpContext);
 

@@ -45,7 +45,6 @@ import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_D
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_PATH;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_COOKIE_HTTP_ONLY;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_COOKIE_SECURE;
-import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_LAZY_LOAD;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_STORE_DIRECTORY;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_TIMEOUT;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_URL;
@@ -491,11 +490,6 @@ public class ConfigurationImpl extends PropertyStore implements Configuration {
 	@Override
 	public Boolean getSessionCookieSecure() {
 		return getResolvedBooleanProperty(PROPERTY_SESSION_COOKIE_SECURE);
-	}
-
-	@Override
-	public Boolean getSessionLazyLoad() {
-		return getResolvedBooleanProperty(PROPERTY_SESSION_LAZY_LOAD);
 	}
 
 	@Override

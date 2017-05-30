@@ -26,14 +26,10 @@ import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
 
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -69,7 +65,6 @@ import org.ops4j.pax.web.service.spi.model.ResourceModel;
 import org.ops4j.pax.web.service.spi.model.SecurityConstraintMappingModel;
 import org.ops4j.pax.web.service.spi.model.ServerModel;
 import org.ops4j.pax.web.service.spi.model.ServletModel;
-import org.ops4j.pax.web.service.spi.model.WebSocketModel;
 import org.ops4j.pax.web.service.spi.model.WelcomeFileModel;
 import org.ops4j.pax.web.service.spi.util.ResourceDelegatingBundleClassLoader;
 import org.osgi.framework.Bundle;
@@ -262,10 +257,10 @@ class JettyServerImpl implements JettyServer {
 								 final String sessionDomain, final String sessionPath,
 								 final String sessionUrl, final Boolean sessionCookieHttpOnly,
 								 final Boolean sessionCookieSecure, final String workerName,
-								 final Boolean lazyLoad, final String storeDirectory) {
+								 final String storeDirectory) {
 		server.configureContext(attributes, sessionTimeout, sessionCookie,
 				sessionDomain, sessionPath, sessionUrl, sessionCookieHttpOnly,
-				sessionCookieSecure, workerName, lazyLoad, storeDirectory);
+				sessionCookieSecure, workerName, storeDirectory);
 	}
 
 	@Override
