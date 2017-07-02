@@ -165,6 +165,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.ops4j.pax.web.samples</groupId>
+				<artifactId>whiteboard-jsp-custom-tags</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.web.samples</groupId>
 				<artifactId>authentication</artifactId>
 				<version>${project.version}</version>
 			</dependency>

@@ -93,6 +93,7 @@
     <module>web-jersey</module>
     <module>http-custom-context</module>
     <module>jsf-resourcehandler</module>
+    <module>whiteboard-jsp-custom-tags</module>
   </modules>
 
   <properties>
