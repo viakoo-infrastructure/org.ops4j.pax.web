@@ -61,6 +61,7 @@
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-api</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 	
@@ -74,7 +75,9 @@
 					<instructions>
 						<Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
 						<Bundle-Activator>org.ops4j.pax.web.extender.samples.whiteboard.jsp.custom.tag.Activator</Bundle-Activator>
-						<Export-Package>*</Export-Package>
+						<Export-Package>
+							org.ops4j.pax.web.extender.samples.whiteboard.jsp.custom.tag
+						</Export-Package>
 						<Import-Package>
 							javax.servlet.*; version="2.5",
 							*

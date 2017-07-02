@@ -27,29 +27,35 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.web.itest.base.VersionUtil;
 import org.ops4j.pax.web.itest.base.client.HttpTestClientFactory;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 @RunWith(PaxExam.class)
 public class WhiteboardJspCustomTagTest extends ITestBase {
 
+    private Bundle installWarBundle;
+    
 	@Configuration
 	public static Option[] configure() {
-		return combine(
-				configureJetty(),
-				mavenBundle().groupId("org.ops4j.pax.web.samples")
-						.artifactId("whiteboard-jsp-custom-tags").version(VersionUtil.getProjectVersion())
-						.noStart());
-
+		return combine(configureJetty());
 	}
 
 	@Before
 	public void setUp() throws BundleException, InterruptedException {
+	    
+	    String bundlePath = "mvn:org.ops4j.pax.web.samples/whiteboard-jsp-custom-tags/" + VersionUtil.getProjectVersion();
+        installWarBundle = installAndStartBundle(bundlePath);
+	    
 		initServletListener();
 		waitForServletListener();
 	}
 
 	@After
 	public void tearDown() throws BundleException {
+	    if (installWarBundle != null) {
+            installWarBundle.stop();
+            installWarBundle.uninstall();
+        }
 	}
 
 	@Test
@@ -57,7 +63,7 @@ public class WhiteboardJspCustomTagTest extends ITestBase {
 	    HttpTestClientFactory.createDefaultTestClient()
         .withResponseAssertion("Response must contain 'Test'",
                 resp -> resp.contains("Test"))
-        .doGETandExecuteTest("http://127.0.0.1:8181/sample");
+        .doGETandExecuteTest("http://127.0.0.1:8181/sample/index");
 	}
 
 }
