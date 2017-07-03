@@ -49,6 +49,7 @@ import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_L
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_STORE_DIRECTORY;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_TIMEOUT;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SESSION_URL;
+import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_USE_SHARED_HTTPCONTEXT_PER_DEFAULT;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SSL_CLIENT_AUTH_NEEDED;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SSL_CLIENT_AUTH_WANTED;
 import static org.ops4j.pax.web.service.WebContainerConstants.PROPERTY_SSL_KEYPASSWORD;
@@ -501,6 +502,11 @@ public class ConfigurationImpl extends PropertyStore implements Configuration {
 	@Override
 	public String getSessionStoreDirectory() {
 		return getResolvedStringProperty(PROPERTY_SESSION_STORE_DIRECTORY);
+	}
+	
+	@Override
+	public Boolean isUseSharedHttpContextByDefault() {
+		return getResolvedBooleanProperty(PROPERTY_USE_SHARED_HTTPCONTEXT_PER_DEFAULT);
 	}
 
 	@Override

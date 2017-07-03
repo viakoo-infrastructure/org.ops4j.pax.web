@@ -132,6 +132,20 @@ public interface Configuration {
 	String getSessionStoreDirectory();
 
 	Boolean getSessionLazyLoad();
+	
+	/**
+	 * The user of method org.osgi.service.http.HttpService.createDefaultHttpContext() is usually
+	 * (and should not be) aware of implementation used, so they can't call 
+	 * org.ops4j.pax.web.service.WebContainer.createDefaultSharedHttpContext() 
+	 * if they want to use shared context. <br/>
+	 * Therefore we provide a configuration parameter that controls the behavior of publicly available
+	 * method createDefaultHttpContext(). <br/>
+	 * If the parameter is not set, or is set to false, the per-bundle HttpContext is returned, as
+	 * in pre-6.1.0 versions. When it is set to true, the shared instance is returned.
+	 * 
+	 * @return true if should use shared HttpContext by default.
+	 */
+	Boolean isUseSharedHttpContextByDefault();
 
 	String getWorkerName();
 

@@ -214,7 +214,7 @@ class HttpServiceStarted implements StoppableHttpService {
 								final HttpContext httpContext) throws ServletException,
 			NamespaceException {
 		final ContextModel contextModel = getOrCreateContext(httpContext);
-		LOG.debug("Register servlet (alias={}). Using context [{}]", alias, contextModel);
+		LOG.info("Register servlet (alias={}). Using context [{}]", alias, contextModel);
 		@SuppressWarnings("unchecked")
 		final ServletModel model = new ServletModel(contextModel, servlet,
 				alias, initParams, loadOnStartup, asyncSupported);
@@ -323,7 +323,13 @@ class HttpServiceStarted implements StoppableHttpService {
 
 	@Override
 	public WebContainerContext createDefaultHttpContext() {
-		return new DefaultHttpContext(serviceBundle, WebContainerContext.DefaultContextIds.DEFAULT.getValue());
+		if (serverController.getConfiguration().isUseSharedHttpContextByDefault()) {
+			LOG.info("createDefaultHttpContext returns SharedContext");
+			return createDefaultSharedHttpContext();
+		} else {
+			LOG.info("createDefaultHttpContext returns HttpContext for bundle {}", serviceBundle.getBundleId());
+			return createDefaultHttpContext(WebContainerContext.DefaultContextIds.DEFAULT.getValue());
+		}	
 	}
 
 	@Override
@@ -495,7 +501,7 @@ class HttpServiceStarted implements StoppableHttpService {
 	public void registerEventListener(final EventListener listener,
 									  final HttpContext httpContext) {
 		final ContextModel contextModel = getOrCreateContext(httpContext);
-		LOG.debug("Register event listener (listener={}). Using context [{}]", listener, contextModel);
+		LOG.info("Register event listener (listener={}). Using context [{}]", listener, contextModel);
 		final EventListenerModel model = new EventListenerModel(contextModel,
 				listener);
 		boolean serviceSuccess = false;

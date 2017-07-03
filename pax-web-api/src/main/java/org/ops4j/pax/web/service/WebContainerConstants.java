@@ -118,6 +118,7 @@ public interface WebContainerConstants {
 	String PROPERTY_SESSION_COOKIE_SECURE = PID + ".session.cookie.secure";
 	String PROPERTY_SESSION_LAZY_LOAD = PID + ".session.lazyload";
 	String PROPERTY_SESSION_STORE_DIRECTORY = PID + ".session.storedirectory";
+	String PROPERTY_USE_SHARED_HTTPCONTEXT_PER_DEFAULT = PID + ".context.useSharedPerDefault";
 
 	String PROPERTY_TEMP_DIR = "javax.servlet.context.tempdir";
 
