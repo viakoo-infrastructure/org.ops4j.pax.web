@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.web.extender.whiteboard.ExtenderConstants;
 import org.ops4j.pax.web.itest.jetty.support.SimpleWebSocket;
 import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
@@ -30,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.websocket.Session;
 import java.net.URI;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import static org.ops4j.pax.exam.OptionUtils.combine;
 
@@ -61,7 +64,9 @@ public class WebSocketWhiteBoardIntegrationTest extends ITestBase {
 
 		SimpleWebSocket simpleWebSocket = new SimpleWebSocket();
 
-		bundleContext.registerService(Object.class.getName(), simpleWebSocket, null);
+		Dictionary<String, Object> filter = new Hashtable<>();
+		filter.put(ExtenderConstants.WEBSOCKET, "true");
+        bundleContext.registerService(Object.class.getName(), simpleWebSocket, filter);
 
 		Thread.sleep(1000);
 	}
