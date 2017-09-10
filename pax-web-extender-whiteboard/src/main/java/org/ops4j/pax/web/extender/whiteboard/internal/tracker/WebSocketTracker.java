@@ -41,7 +41,7 @@ public class WebSocketTracker extends AbstractTracker<Object, WebSocketElement> 
 
 	public static ServiceTracker<Object, WebSocketElement> createTracker(final ExtenderContext extenderContext,
 			final BundleContext bundleContext) {
-		return new WebSocketTracker(extenderContext, bundleContext).create("&(objectClass="+Object.class.getName()+")("+ExtenderConstants.WEBSOCKET+"=true)");
+		return new WebSocketTracker(extenderContext, bundleContext).create("(&(objectClass="+Object.class.getName()+")("+ExtenderConstants.WEBSOCKET+"=true))");
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(WebSocketTracker.class);
