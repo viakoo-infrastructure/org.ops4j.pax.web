@@ -56,9 +56,6 @@ import org.eclipse.jetty.server.HandlerContainer;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.SessionIdManager;
-import org.eclipse.jetty.server.session.AbstractSessionManager;
-import org.eclipse.jetty.server.session.JDBCSessionIdManager;
-import org.eclipse.jetty.server.session.JDBCSessionManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -129,12 +126,14 @@ class HttpServiceContext extends ServletContextHandler {
 		_scontext = new SContext();
 
 		// TCCL of sessionManager timer threads will be set to thread of pax-web-jetty bundle, not to current TCCL
+		/*
 		AbstractSessionManager sessionManager = (AbstractSessionManager) getSessionHandler().getSessionManager();
 		ScheduledExecutorScheduler executorScheduler = new ScheduledExecutorScheduler(sessionManager.toString() + "Timer", true,
 				getClass().getClassLoader());
 		sessionManager.addBean(executorScheduler, true);
 		_scontext.setAttribute("org.eclipse.jetty.server.session.timer", executorScheduler);
-
+        */
+		
 		setServletHandler(new HttpServiceServletHandler(httpContext));
 		setErrorHandler(new ErrorPageErrorHandler());
 
@@ -383,6 +382,7 @@ class HttpServiceContext extends ServletContextHandler {
 				|| StringUtil.startsWithIgnoreCase(target, "/osgi-opt");
 	}
 
+	/*
 	@Override
 	protected SessionHandler newSessionHandler() {
 		Server server = getServer();
@@ -413,7 +413,7 @@ class HttpServiceContext extends ServletContextHandler {
 			}
 			return new SessionHandler(sessionManager);
 		}
-	}
+	}*/
 
 	@Override
 	public String toString() {
